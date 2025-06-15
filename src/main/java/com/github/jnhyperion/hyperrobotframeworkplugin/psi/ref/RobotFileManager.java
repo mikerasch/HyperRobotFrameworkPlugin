@@ -91,6 +91,7 @@ public class RobotFileManager {
             while (matcher.find()) {
                 String fullMatch = matcher.group(0);
                 String envVar = fullMatch.replaceAll("[${}]", "");
+                debug("propertiesContent", DotEnv.properties.toString(), project);
                 String envValue = DotEnv.getValue(envVar);
                 debug("envValue", envValue, project);
                 if (envValue == null || envValue.isEmpty()) {
