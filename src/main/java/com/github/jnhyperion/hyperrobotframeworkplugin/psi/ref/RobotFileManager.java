@@ -86,6 +86,7 @@ public class RobotFileManager {
     private static String resolveResourceName(String resource, Project project) {
         Matcher matcher = VARIABLE_PATTERN.matcher(resource);
         String resolvedResource = resource;
+        debug("resolveAttempt", resource, project);
         try {
             while (matcher.find()) {
                 String fullMatch = matcher.group(0);
@@ -97,13 +98,12 @@ public class RobotFileManager {
                 }
 
                 resolvedResource = resolvedResource.replace(fullMatch, envValue);
+                debug("foundEnvVariable", resolvedResource, project);
             }
         } catch (Exception e) {
             debug("dotEnvFailedToLoad", resource, project);
             return resource;
         }
-
-        debug("resolvedResource", resolvedResource, project);
         return resolvedResource;
     }
 
@@ -245,6 +245,5 @@ public class RobotFileManager {
             String message = String.format("[RobotFileManager][%s] %s", lookup, data);
             Notifications.Bus.notify(new Notification("intellibot.debug", "Debug", message, NotificationType.INFORMATION));
         }
-
     }
 }

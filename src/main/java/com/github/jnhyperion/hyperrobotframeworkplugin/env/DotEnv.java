@@ -1,5 +1,12 @@
 package com.github.jnhyperion.hyperrobotframeworkplugin.env;
 
+import com.github.jnhyperion.hyperrobotframeworkplugin.ide.config.RobotOptionsProvider;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,8 +47,19 @@ public class DotEnv {
                             properties.setProperty(key, value);
                         }
                     });
+            logProperties();
         } catch (IOException ignored) {
 
+        }
+    }
+
+    private static void logProperties() {
+        Project project = ProjectManager.getInstance().getOpenProjects()[0];
+        String lookup = "PropertiesContents";
+        String data = properties.toString();
+        if (RobotOptionsProvider.getInstance(project).isDebug()) {
+            String message = String.format("[DotEnv][%s] %s", lookup, data);
+            Notifications.Bus.notify(new Notification("intellibot.debug", "Debug", message, NotificationType.INFORMATION));
         }
     }
 
