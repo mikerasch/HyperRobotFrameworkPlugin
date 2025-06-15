@@ -1,6 +1,6 @@
 # Hyper Robot Framework
 This is a fork of the unmaintained HyperRobotFrameworkPlugin which will introduce features I want.
-Note: If you want an UPDATED robotCode, see https://github.com/robotcodedev/robotcode. It has a decent bit to go, so in the meantime, I am going to stick with this outdated tech.
+Note: If you want UPDATEd tooling, see https://github.com/robotcodedev/robotcode. It has a decent bit to go, so in the meantime, I am going to stick with this outdated tech until it becomes more mature.
 
 # Installation
 1) Download latest jar in /latest package.
@@ -12,6 +12,5 @@ Note: If you want an UPDATED robotCode, see https://github.com/robotcodedev/robo
 # Changelog
 06-15-2025 <- Added enviroment variable support for *** Settings ***. This will fetch all System.getProperties AND .env files. Any duplicate key will be overwritten by .env. 
 
-
 # Issues?
-I am not going to maintain this project. For pretty much anything you want, https://github.com/robotcodedev/robotcode will be your guide.
+I am not going to maintain this project. For pretty much anything you want, https://github.com/robotcodedev/robotcode will be your place to go.
