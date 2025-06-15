@@ -1,5 +1,6 @@
 package com.github.jnhyperion.hyperrobotframeworkplugin.psi.ref;
 
+import com.github.jnhyperion.hyperrobotframeworkplugin.env.DotEnv;
 import com.intellij.notification.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -10,7 +11,6 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.ProjectScope;
 import com.intellij.util.containers.MultiMap;
 import com.github.jnhyperion.hyperrobotframeworkplugin.ide.config.RobotOptionsProvider;
-import io.github.cdimascio.dotenv.Dotenv;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -88,11 +88,10 @@ public class RobotFileManager {
         String resolvedResource = resource;
 
         try {
-            Dotenv dotenv = Dotenv.load();
             while (matcher.find()) {
                 String fullMatch = matcher.group(0);
                 String envVar = fullMatch.replaceAll("[${}]", "");
-                String envValue = dotenv.get(envVar);
+                String envValue = DotEnv.getValue(envVar);
 
                 if (envValue == null || envValue.isEmpty()) {
                     return resource;

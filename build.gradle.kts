@@ -29,7 +29,6 @@ repositories {
     jcenter()
 }
 dependencies {
-    implementation("io.github.cdimascio:dotenv-java:2.2.0")
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.15.0")
 }
 
