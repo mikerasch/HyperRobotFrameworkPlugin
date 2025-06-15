@@ -10,12 +10,15 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.ProjectScope;
 import com.intellij.util.containers.MultiMap;
 import com.github.jnhyperion.hyperrobotframeworkplugin.ide.config.RobotOptionsProvider;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This handles finding Robot files or python classes/files.
@@ -24,7 +27,7 @@ import java.util.Map;
  * @since 2014-06-28
  */
 public class RobotFileManager {
-
+    private static final Pattern VARIABLE_PATTERN = Pattern.compile("\\$\\{[^}]+}");
     private static final Map<String, PsiElement> FILE_CACHE = new HashMap<String, PsiElement>();
     private static final MultiMap<PsiElement, String> FILE_NAMES = MultiMap.createSet();
 
@@ -68,16 +71,43 @@ public class RobotFileManager {
         if (resource == null) {
             return null;
         }
-        PsiElement result = getFromCache(resource);
+        String resolvedResourceName = resolveResourceName(resource, project);
+        PsiElement result = getFromCache(resolvedResourceName);
         if (result != null) {
             return result;
         }
-        String[] file = getFilename(resource, "");
-        debug(resource, "Attempting global search", project);
-        result = findGlobalFile(resource, file[0], file[1], project, originalElement);
-        addToCache(result, resource);
+        String[] file = getFilename(resolvedResourceName, "");
+        debug(resolvedResourceName, "Attempting global search", project);
+        result = findGlobalFile(resolvedResourceName, file[0], file[1], project, originalElement);
+        addToCache(result, resolvedResourceName);
         return result;
     }
+
+    private static String resolveResourceName(String resource, Project project) {
+        Matcher matcher = VARIABLE_PATTERN.matcher(resource);
+        String resolvedResource = resource;
+
+        try {
+            Dotenv dotenv = Dotenv.load();
+            while (matcher.find()) {
+                String fullMatch = matcher.group(0);
+                String envVar = fullMatch.replaceAll("[${}]", "");
+                String envValue = dotenv.get(envVar);
+
+                if (envValue == null || envValue.isEmpty()) {
+                    return resource;
+                }
+
+                resolvedResource = resolvedResource.replace(fullMatch, envValue);
+            }
+        } catch (Exception e) {
+            debug("dotEnvFailedToLoad", resource, project);
+            return resource;
+        }
+
+        return resolvedResource;
+    }
+
 
     @Nullable
     public static PsiElement findPython(@Nullable String library, @NotNull Project project,
