@@ -86,13 +86,12 @@ public class RobotFileManager {
     private static String resolveResourceName(String resource, Project project) {
         Matcher matcher = VARIABLE_PATTERN.matcher(resource);
         String resolvedResource = resource;
-
         try {
             while (matcher.find()) {
                 String fullMatch = matcher.group(0);
                 String envVar = fullMatch.replaceAll("[${}]", "");
                 String envValue = DotEnv.getValue(envVar);
-
+                debug("envValue", envValue, project);
                 if (envValue == null || envValue.isEmpty()) {
                     return resource;
                 }
@@ -104,6 +103,7 @@ public class RobotFileManager {
             return resource;
         }
 
+        debug("resolvedResource", resolvedResource, project);
         return resolvedResource;
     }
 
