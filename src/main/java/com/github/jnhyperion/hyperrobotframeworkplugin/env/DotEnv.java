@@ -1,29 +1,36 @@
 package com.github.jnhyperion.hyperrobotframeworkplugin.env;
 
+import com.intellij.openapi.project.Project;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DotEnv {
-    public static final Properties properties = new Properties();
-
-    static {
-        loadProperties();
-    }
+    private static final Map<Project, Properties> projectToPropertiesMap = new ConcurrentHashMap<>();
 
     private DotEnv() {
 
     }
 
-    private static void loadProperties() {
+    private static void loadProperties(Project project) {
+        if (projectToPropertiesMap.containsKey(project)) {
+            return;
+        }
+        Properties properties = new Properties();
         // Load all system properties first
         System.getProperties().forEach((key, value) -> properties.setProperty((String) key, (String) value));
 
+        String basePath = project.getBasePath();
+
         // Load from .env if it exists and is a regular file
-        Path path = Paths.get("./.env");
+        Path path = Paths.get(basePath + ".env");
         if (!Files.exists(path) || !Files.isRegularFile(path)) {
+            projectToPropertiesMap.put(project, properties);
             return;
         }
 
@@ -43,9 +50,11 @@ public class DotEnv {
         } catch (IOException ignored) {
 
         }
+        projectToPropertiesMap.put(project, properties);
     }
 
-    public static String getValue(String key) {
-        return properties.getProperty(key);
+    public static String getValue(String key, Project project) {
+        loadProperties(project);
+        return projectToPropertiesMap.get(project).getProperty(key);
     }
 }
