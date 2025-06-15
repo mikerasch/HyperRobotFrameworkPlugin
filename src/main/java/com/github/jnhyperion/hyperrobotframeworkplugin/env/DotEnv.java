@@ -1,6 +1,11 @@
 package com.github.jnhyperion.hyperrobotframeworkplugin.env;
 
+import com.github.jnhyperion.hyperrobotframeworkplugin.ide.config.RobotOptionsProvider;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,8 +33,9 @@ public class DotEnv {
         String basePath = project.getBasePath();
 
         // Load from .env if it exists and is a regular file
-        Path path = Paths.get(basePath + ".env");
+        Path path = Paths.get(basePath + "/.env");
         if (!Files.exists(path) || !Files.isRegularFile(path)) {
+            debug("envFileNotFound", path.toString(), project);
             projectToPropertiesMap.put(project, properties);
             return;
         }
@@ -56,5 +62,12 @@ public class DotEnv {
     public static String getValue(String key, Project project) {
         loadProperties(project);
         return projectToPropertiesMap.get(project).getProperty(key);
+    }
+
+    private static void debug(@NotNull String lookup, String data, @NotNull Project project) {
+        if (RobotOptionsProvider.getInstance(project).isDebug()) {
+            String message = String.format("[RobotFileManager][%s] %s", lookup, data);
+            Notifications.Bus.notify(new Notification("intellibot.debug", "Debug", message, NotificationType.INFORMATION));
+        }
     }
 }
